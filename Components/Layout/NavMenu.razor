@@ -1,0 +1,50 @@
+﻿@inject SesClass Session
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">ProjektBlazrow67273</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+      
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Login
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="rooms">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Rooms
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="reservation">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Reservation
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="chat">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Chat
+            </NavLink>
+        </div>
+
+
+    </nav>
+    <div class="fixed-bottom ps-3 navbar navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href=""> 
+                @if (@Session.Users.Id == 0){
+                    <p>Not loged in</p> 
+                }
+                else{
+                <p>Loged us: @Session.Users.name</p>
+                 
+                }
+            </a>
+        </div>
+    </div>
+</div>

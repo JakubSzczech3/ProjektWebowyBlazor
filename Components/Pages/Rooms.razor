@@ -1,0 +1,54 @@
+﻿@page "/rooms"
+@rendermode InteractiveServer
+@inject AppDbContext DbContext
+@using Microsoft.EntityFrameworkCore 
+
+
+<PageTitle>Rooms</PageTitle>
+
+<table>
+    <thead>
+        <tr>
+            <th id="Rnum">Room Number</th>
+            <th id="Rnum">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var room in RoomsList)
+        {
+            <tr>
+                <td>@room.room_number</td>
+                <td>@room.room_status</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@code {
+    private List<rooms> RoomsList = new List<rooms>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        RoomsList = await DbContext.rooms.ToListAsync();
+    }
+}
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse; 
+    }
+
+    th, td {
+        border: 1px solid black; 
+        padding: 8px; 
+        text-align: left; 
+    }
+
+    th {
+        background-color: #FA8072;
+    }
+    #Rnum {
+        background-color: #FA8072
+    }
+</style>

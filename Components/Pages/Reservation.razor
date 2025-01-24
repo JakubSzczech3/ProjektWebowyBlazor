@@ -1,0 +1,138 @@
+﻿@page "/reservation"
+@rendermode InteractiveServer
+@inject AppDbContext DbContext
+@inject SesClass Session
+@inject NavigationManager NavMag
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.Forms
+
+<h3>Reservation</h3>
+
+@if (Session.Users.Id == 0)
+{
+    <p class="alert alert-warning">You have to be logged to reserve room.</p>
+}
+else
+{
+    <p>
+        Select start date:
+        <InputDate @bind-Value="selectedStartDate" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+    </p>
+
+    <p>
+        Select end date:
+        <InputDate @bind-Value="selectedEndDate" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+    </p>
+
+    <button @onclick="AssignRoom">Reserve</button>
+
+    @if (assignedRoom != null)
+    {
+        <p>Room number @assignedRoom.room_number is reserve from @selectedStartDate.ToString("yyyy-MM-dd") to @selectedEndDate.ToString("yyyy-MM-dd").</p>
+    }
+    else
+    {
+        <p>No available rooms in this time preiod .</p>
+    }
+}
+<h4>Your reservations</h4>
+
+@if (userReservations.Any())
+{
+    <ul>
+        @foreach (var reservation in userReservations)
+        {
+            <li>
+                From: @reservation.st_date.ToString("yyyy-MM-dd") | To: @reservation.fn_date.ToString("yyyy-MM-dd")
+                <button @onclick="() => CancelReservation(reservation.Id)">Cancel</button>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>You don't have any reservations.</p>
+}
+
+@code {
+    private DateTime selectedStartDate = DateTime.Today; 
+    private DateTime selectedEndDate = DateTime.Today.AddDays(1); 
+    private rooms? assignedRoom;
+    private List<reservations> userReservations = new List<reservations>();
+    protected override async Task OnInitializedAsync(){
+        userReservations = await DbContext.Set<reservations>()
+            .Where(r => r.client_id == Session.Users.Id) 
+            .ToListAsync();
+    }
+    private async Task LoadUserReservations()
+    {
+        userReservations = await DbContext.Set<reservations>()
+            .Where(r => r.client_id == Session.Users.Id) 
+            .ToListAsync();
+    }
+
+    private async Task AssignRoom()
+    {
+        if (Session.Users.Id == 0)
+        {
+            assignedRoom = null;
+            return;
+        }
+
+        if (selectedEndDate <= selectedStartDate)
+        {
+            assignedRoom = null;
+            return;
+        }
+
+        var availableRoom = await GetAvailableRoomForDate(selectedStartDate, selectedEndDate);
+
+        if (availableRoom != null)
+        {
+            assignedRoom = availableRoom;
+
+            var reservation = new reservations
+                {
+                    client_id = Session.Users.Id, 
+                    room_id = assignedRoom.Id,
+                    st_date = selectedStartDate,
+                    fn_date = selectedEndDate
+                };
+
+            DbContext.Set<reservations>().Add(reservation);
+            await DbContext.SaveChangesAsync();
+            await LoadUserReservations();
+        }
+        else
+        {
+            assignedRoom = null;
+        }
+    }
+
+    private async Task<rooms?> GetAvailableRoomForDate(DateTime startDate, DateTime endDate)
+    {
+        var rooms = await DbContext.Set<rooms>().Where(r => r.room_status == "Available").ToListAsync();
+
+        var reservations = await DbContext.Set<reservations>()
+            .Where(r => (r.st_date < endDate && r.fn_date > startDate)) 
+            .ToListAsync();
+
+        var reservedRoomIds = reservations.Select(r => r.room_id).ToHashSet();
+
+        return rooms.FirstOrDefault(r => !reservedRoomIds.Contains(r.Id));
+    }
+    private async Task CancelReservation(int reservationId)
+    {
+        var reservationToCancel = await DbContext.Set<reservations>()
+            .Where(r => r.Id == reservationId && r.client_id == Session.Users.Id)
+            .FirstOrDefaultAsync();
+
+        if (reservationToCancel != null)
+        {
+            DbContext.Set<reservations>().Remove(reservationToCancel);
+            await DbContext.SaveChangesAsync();
+
+            await LoadUserReservations();
+        }
+    }
+}
