@@ -14,5 +14,5 @@ https://github.com/JakubSzczech3/ProjektWebowyBlazor
 Microsoft.AspNetCore.Authentication.Cookies
 Microsoft.EntityFrameworkCore
 Microsoft.EntityFrameworkCore.SqlServer
-5. Uruchom Aplikacje: dotnet watch
+6. Uruchom Aplikacje: dotnet watch
 
