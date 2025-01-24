@@ -1,0 +1,17 @@
+Wymagania:
+    .NET 8.0
+    SQL Server
+    VS Code
+    SQL Server Management
+
+Kroki instalacji:
+1. Sklonowanie repozytorium:
+https://github.com/JakubSzczech3/ProjektWebowyBlazor
+2. Uruchomienie skryptu tworzącego Bazę danych w SSMS
+3. W pliku appsettings.json zmeień scieżkę do swojej bazy danych "Data Source="
+4. W VS Code wybierz odpowiedni katalog cd/ProjektBlazorw67273
+5. Zainstaluj odpowiednie biblioteki:
+Microsoft.AspNetCore.Authentication.Cookies
+Microsoft.EntityFrameworkCore
+Microsoft.EntityFrameworkCore.SqlServer
+6. Uruchom Aplikacje: dotnet watch
